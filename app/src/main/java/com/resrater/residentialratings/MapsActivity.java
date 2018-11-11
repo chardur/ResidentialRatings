@@ -10,6 +10,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -36,7 +37,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // gecoder turns a latlng into a human address
+        // geocoder turns a latlng into a human address
         geocoder = new Geocoder(this, Locale.US);
 
         // start the map at the users home
@@ -48,10 +49,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        //mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
         // move the map to the users home and add a marker
         mMap.moveCamera(CameraUpdateFactory.newLatLng(home));
-        homeMarker = mMap.addMarker(new MarkerOptions().position(home).title("Home"));
+        homeMarker = mMap.addMarker(new MarkerOptions().position(home).title("Home").draggable(true)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue)));
 
         // listener for user to select locations on the map
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
