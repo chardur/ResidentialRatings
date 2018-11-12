@@ -7,7 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MapsFragment.mapsInterface{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,4 +31,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void showMapClickDialog() {
+        MapClickDialogFragment mapClickDialogFrag = new MapClickDialogFragment();
+        mapClickDialogFrag.setCancelable(true);
+        mapClickDialogFrag.show(getSupportFragmentManager(), "mapClickDialog");
+    }
 }

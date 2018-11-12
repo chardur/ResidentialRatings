@@ -1,5 +1,6 @@
 package com.resrater.residentialratings;
 
+import android.app.Activity;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.annotation.NonNull;
@@ -29,6 +30,7 @@ import java.util.Locale;
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private View root;
+    private mapsInterface mCallBack;
     private SupportMapFragment mapFragment;
     private static final float DEFAULT_ZOOM = 19;
     private GoogleMap mMap;
@@ -39,6 +41,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public MapsFragment() {
 
     }
+    public interface mapsInterface {
+        public void showMapClickDialog();
+    }
 
     @Nullable
     @Override
@@ -46,12 +51,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         FragmentManager fm = getChildFragmentManager();
 
+        // this was added to convert mapActivity to mapFragment
         if (mapFragment == null) {
             mapFragment = SupportMapFragment.newInstance();
-            fm.beginTransaction().replace(R.id.map, mapFragment).commit();
+            fm.beginTransaction()
+                    .replace(R.id.map, mapFragment)
+                    .commit();
         }
-
-
 
         return root = inflater.inflate(R.layout.fragment_maps, container, false);
     }
@@ -68,6 +74,19 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         // start the map at the users home
         home = new LatLng(40.647360, -112.306890);
+
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        try {
+            mCallBack = (mapsInterface) activity;
+        }catch (ClassCastException e){
+            throw new ClassCastException(activity.toString() +
+                    "must use maps interface");
+        }
 
     }
 
@@ -103,6 +122,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 if (address != null) {
                     Toast.makeText(MapsFragment.this.getContext(), address.getFeatureName() +" "
                             + address.getThoroughfare() +" " +address.getPostalCode(), Toast.LENGTH_SHORT).show();
+
                 }
 
                 //remove previously placed Marker
@@ -112,9 +132,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
                 //place marker where user just clicked
                 marker = mMap.addMarker(new MarkerOptions().position(point).title("Marker"));
-
+                mCallBack.showMapClickDialog();
             }
         });
 
+    }
+
+    public void setSupportFragment( SupportMapFragment fragment){
+        mapFragment = fragment;
     }
 }
