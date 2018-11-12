@@ -8,4 +8,4 @@
     android:layout_height="match_parent"
     map:mapType="hybrid"
     map:cameraZoom="19"
-    tools:context=".MapsActivity" />
+    tools:context=".MapsFragment" />

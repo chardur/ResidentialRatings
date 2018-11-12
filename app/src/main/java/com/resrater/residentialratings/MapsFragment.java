@@ -5,7 +5,6 @@ import android.location.Geocoder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
@@ -27,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class MapsActivity extends Fragment implements OnMapReadyCallback {
+public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private View root;
     private SupportMapFragment mapFragment;
@@ -37,7 +36,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
     private Marker marker, homeMarker;
     Geocoder geocoder;
 
-    public MapsActivity() {
+    public MapsFragment() {
 
     }
 
@@ -54,7 +53,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
 
 
 
-        return root = inflater.inflate(R.layout.activity_maps, container, false);
+        return root = inflater.inflate(R.layout.fragment_maps, container, false);
     }
 
     @Override
@@ -81,7 +80,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
         //mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
         // move the map to the users home and add a marker
-        mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(home , 19.0f) );
+        mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(home , DEFAULT_ZOOM) );
         homeMarker = mMap.addMarker(new MarkerOptions().position(home).title("Home").draggable(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue)));
 
@@ -102,7 +101,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
 
                 android.location.Address address = addresses.get(0);
                 if (address != null) {
-                    Toast.makeText(MapsActivity.this.getContext(), address.getFeatureName() +" "
+                    Toast.makeText(MapsFragment.this.getContext(), address.getFeatureName() +" "
                             + address.getThoroughfare() +" " +address.getPostalCode(), Toast.LENGTH_SHORT).show();
                 }
 
