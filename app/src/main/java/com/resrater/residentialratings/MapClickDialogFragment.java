@@ -65,7 +65,9 @@ public class MapClickDialogFragment extends DialogFragment {
 
         mapClickDialogAddressText = (TextView) root.findViewById(R.id.mapClickDialogAddressText);
         if (selectedAddress != null){
-            mapClickDialogAddressText.setText(selectedAddress.getFeatureName() +" "+ selectedAddress.getThoroughfare());
+            if (selectedAddress.getFeatureName() != null && selectedAddress.getThoroughfare() != null) {
+                mapClickDialogAddressText.setText(selectedAddress.getFeatureName() + " " + selectedAddress.getThoroughfare());
+            }
         }
 
         return root;
