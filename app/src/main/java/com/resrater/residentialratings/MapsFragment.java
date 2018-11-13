@@ -11,7 +11,6 @@ import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,12 +36,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private LatLng latLng, home;
     private Marker marker, homeMarker;
     Geocoder geocoder;
+    private android.location.Address selectedAddress;
 
     public MapsFragment() {
 
     }
     public interface mapsInterface {
-        public void showMapClickDialog();
+        public void showMapClickDialog(Address selectedAddress);
     }
 
     @Nullable
@@ -118,21 +118,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     e.printStackTrace();
                 }
 
-                android.location.Address address = addresses.get(0);
-                if (address != null) {
-                    Toast.makeText(MapsFragment.this.getContext(), address.getFeatureName() +" "
-                            + address.getThoroughfare() +" " +address.getPostalCode(), Toast.LENGTH_SHORT).show();
-
+                selectedAddress = addresses.get(0);
+                if (selectedAddress != null) {
+                    // display rating dialog
+                    mCallBack.showMapClickDialog(selectedAddress);
                 }
-
                 //remove previously placed Marker
                 if (marker != null) {
                     marker.remove();
                 }
-
                 //place marker where user just clicked
                 marker = mMap.addMarker(new MarkerOptions().position(point).title("Marker"));
-                mCallBack.showMapClickDialog();
             }
         });
 

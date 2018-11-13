@@ -1,5 +1,6 @@
 package com.resrater.residentialratings;
 
+import android.location.Address;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -32,9 +33,10 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.maps
     }
 
     @Override
-    public void showMapClickDialog() {
+    public void showMapClickDialog(Address selectedAddress) {
         MapClickDialogFragment mapClickDialogFrag = new MapClickDialogFragment();
         mapClickDialogFrag.setCancelable(true);
         mapClickDialogFrag.show(getSupportFragmentManager(), "mapClickDialog");
+        mapClickDialogFrag.setSelectedAddress(selectedAddress);
     }
 }
