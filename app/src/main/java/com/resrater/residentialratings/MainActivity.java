@@ -10,6 +10,9 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity implements MapsFragment.mapsInterface{
 
+    private FragmentManager fm;
+    private LoginFragment loginFrag;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -17,7 +20,14 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.maps
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Button btnMap = (Button) findViewById(R.id.btnMap);
+        loginFrag = new LoginFragment();
+
+        fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .replace(R.id.contentMain, loginFrag,"loginFrag")
+                .commit();
+
+/*        Button btnMap = (Button) findViewById(R.id.btnMap);
         btnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -29,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.maps
                         .addToBackStack(null)
                         .commit();
             }
-        });
+        });*/
     }
 
     @Override
