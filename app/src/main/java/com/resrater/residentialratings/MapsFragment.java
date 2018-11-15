@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,6 +50,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        root = inflater.inflate(R.layout.fragment_maps, container, false);
+        getActivity().setTitle("Add / View ratings below:");
+
         FragmentManager fm = getChildFragmentManager();
 
         // this was added to convert mapActivity to mapFragment
@@ -59,7 +63,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     .commit();
         }
 
-        return root = inflater.inflate(R.layout.fragment_maps, container, false);
+        return root;
     }
 
     @Override

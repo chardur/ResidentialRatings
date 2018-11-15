@@ -3,6 +3,7 @@ package com.resrater.residentialratings;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -16,6 +17,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -51,9 +54,13 @@ public class MapClickDialogFragment extends DialogFragment {
             public void onClick(View v) {
                 switch (v.getId()) {
                     case R.id.btnAddRating:
+                        // TODO add firebase rating
+                        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                        hideKeyboard();
                         dismiss();
                         break;
                     case R.id.btnGoBack:
+                        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                         dismiss();
                         break;
                 }
@@ -86,29 +93,16 @@ public class MapClickDialogFragment extends DialogFragment {
         selectedAddress = address;
     }
 
-/*    @NonNull
-    @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+    public void hideKeyboard() {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Map click dialog fragment")
-                .setPositiveButton("Add Your Rating", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // add logic
-                    }
-                })
-                .setNegativeButton("Go back", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-
-
-        return builder.create();
-    }*/
-
-
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getContext().
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
+    }
 
 }

@@ -1,31 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:fillViewport="true"
     tools:context=".LoginFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:background="@android:color/white"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
         <ImageView
-            android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:layout_width="190dp"
+            android:layout_height="74dp"
             android:layout_gravity="center"
-            android:src="@drawable/logo2" />
+            android:src="@drawable/logo3" />
 
     </FrameLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="2"
+        android:layout_height="0dp"
+        android:layout_weight="4"
         android:background="#325b87"
         android:gravity="center_horizontal"
         android:orientation="vertical">
@@ -45,7 +50,9 @@
                     android:id="@+id/userNameRegister"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="username"
+                    android:hint="Username"
+                    android:imeOptions="actionDone"
+                    android:singleLine="true"
                     android:textColor="#f2b632" />
 
             </android.support.design.widget.TextInputLayout>
@@ -59,7 +66,25 @@
                     android:id="@+id/passwordRegister"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="password"
+                    android:hint="Password"
+                    android:imeOptions="actionDone"
+                    android:singleLine="true"
+                    android:textColor="#f2b632" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/homeAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Home Address"
+                    android:imeOptions="actionDone"
+                    android:singleLine="true"
                     android:textColor="#f2b632" />
 
             </android.support.design.widget.TextInputLayout>
@@ -71,16 +96,7 @@
                 android:text="Register"
                 android:layout_margin="10dp"/>
 
-            <TextView
-                android:id="@+id/LoginTV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:textSize="18sp"
-                android:text="Already have an account? Log In"
-                android:textColor="#f2b632"/>
-
         </LinearLayout>
     </FrameLayout>
-
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

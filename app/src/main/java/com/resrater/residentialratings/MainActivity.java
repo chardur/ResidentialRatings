@@ -6,12 +6,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 
-public class MainActivity extends AppCompatActivity implements MapsFragment.mapsInterface{
+public class MainActivity extends AppCompatActivity implements MapsFragment.mapsInterface,
+LoginFragment.loginInterface, RegisterFragment.registerInterface{
 
     private FragmentManager fm;
     private LoginFragment loginFrag;
+    private RegisterFragment registerFrag;
+    private MapsFragment mapsFrag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.maps
         setSupportActionBar(toolbar);
 
         loginFrag = new LoginFragment();
+        mapsFrag = new MapsFragment();
 
         fm = getSupportFragmentManager();
         fm.beginTransaction()
@@ -49,4 +54,22 @@ public class MainActivity extends AppCompatActivity implements MapsFragment.maps
         mapClickDialogFrag.show(getSupportFragmentManager(), "mapClickDialog");
         mapClickDialogFrag.setSelectedAddress(selectedAddress);
     }
+
+    @Override
+    public void signUpClicked() {
+        registerFrag = new RegisterFragment();
+        fm.beginTransaction()
+                .replace(R.id.contentMain, registerFrag, "registerFrag")
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void showMap() {
+        fm.beginTransaction()
+                .replace(R.id.contentMain, mapsFrag,"mapsFrag")
+                .addToBackStack(null)
+                .commit();
+    }
+
 }
