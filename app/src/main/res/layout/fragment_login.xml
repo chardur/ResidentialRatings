@@ -47,7 +47,7 @@
                 android:padding="5dp">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/userName"
+                    android:id="@+id/email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="username"
