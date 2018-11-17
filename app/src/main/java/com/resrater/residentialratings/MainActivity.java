@@ -16,6 +16,7 @@ LoginFragment.loginInterface, RegisterFragment.registerInterface{
     private LoginFragment loginFrag;
     private RegisterFragment registerFrag;
     private MapsFragment mapsFrag;
+    private SetAddressFragment setAddressFrag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +27,7 @@ LoginFragment.loginInterface, RegisterFragment.registerInterface{
 
         loginFrag = new LoginFragment();
         mapsFrag = new MapsFragment();
+        setAddressFrag = new SetAddressFragment();
 
         fm = getSupportFragmentManager();
         fm.beginTransaction()
@@ -68,6 +70,13 @@ LoginFragment.loginInterface, RegisterFragment.registerInterface{
     public void showMap() {
         fm.beginTransaction()
                 .replace(R.id.contentMain, mapsFrag,"mapsFrag")
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public void setHomeAddress(){
+        fm.beginTransaction()
+                .replace(R.id.contentMain, setAddressFrag,"setAddressFrag")
                 .addToBackStack(null)
                 .commit();
     }
