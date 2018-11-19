@@ -89,7 +89,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         }
 
         // TODO add firebase register
-        //mCallBack.showMap();
         mCallBack.showSetAddressFrag();
 
     }

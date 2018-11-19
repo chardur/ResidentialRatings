@@ -97,7 +97,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
             return;
         }
 
-        // TODO add firebase login
+        // TODO add firebase login and get home address
         mCallBack.showMap();
     }
 
