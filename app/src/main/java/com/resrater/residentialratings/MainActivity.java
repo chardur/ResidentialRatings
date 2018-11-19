@@ -9,8 +9,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class MainActivity extends AppCompatActivity implements MapsFragment.mapsInterface,
-LoginFragment.loginInterface, RegisterFragment.registerInterface{
+LoginFragment.loginInterface, RegisterFragment.registerInterface, SetAddressFragment.SetAddressInterface{
 
     private FragmentManager fm;
     private LoginFragment loginFrag;
@@ -33,20 +35,6 @@ LoginFragment.loginInterface, RegisterFragment.registerInterface{
         fm.beginTransaction()
                 .replace(R.id.contentMain, loginFrag,"loginFrag")
                 .commit();
-
-/*        Button btnMap = (Button) findViewById(R.id.btnMap);
-        btnMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setContentView(R.layout.fragment_maps);
-                MapsFragment mapsFragment = new MapsFragment();
-                FragmentManager fm = getSupportFragmentManager();
-                fm.beginTransaction()
-                        .replace(R.id.map, mapsFragment,"mapsFrag")
-                        .addToBackStack(null)
-                        .commit();
-            }
-        });*/
     }
 
     @Override
@@ -74,11 +62,15 @@ LoginFragment.loginInterface, RegisterFragment.registerInterface{
                 .commit();
     }
 
-    public void setHomeAddress(){
+    public void showSetAddressFrag(){
         fm.beginTransaction()
                 .replace(R.id.contentMain, setAddressFrag,"setAddressFrag")
                 .addToBackStack(null)
                 .commit();
     }
 
+    @Override
+    public void setMapHomeAddress(LatLng address) {
+        mapsFrag.setHomeAddress(address);
+    }
 }

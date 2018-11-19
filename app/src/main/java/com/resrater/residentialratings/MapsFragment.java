@@ -42,6 +42,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public MapsFragment() {
 
     }
+
     public interface mapsInterface {
         public void showMapClickDialog(Address selectedAddress);
     }
@@ -77,7 +78,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         geocoder = new Geocoder(this.getContext(), Locale.US);
 
         // start the map at the users home
-        home = new LatLng(40.647360, -112.306890);
+        //home = new LatLng(40.647360, -112.306890);
 
     }
 
@@ -100,12 +101,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-        //mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
 
         // move the map to the users home and add a marker
-        mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(home , DEFAULT_ZOOM) );
-        homeMarker = mMap.addMarker(new MarkerOptions().position(home).title("Home").draggable(true)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue)));
+        if (home != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(home, DEFAULT_ZOOM));
+            homeMarker = mMap.addMarker(new MarkerOptions().position(home).title("Home").draggable(true)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue)));
+        }
 
         // listener for user to select locations on the map
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -138,7 +142,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    public void setSupportFragment( SupportMapFragment fragment){
-        mapFragment = fragment;
+    public void setHomeAddress(LatLng address) {
+        home = address;
     }
+
 }

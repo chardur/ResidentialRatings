@@ -26,7 +26,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
 
     public interface registerInterface {
         void showMap();
-        void setHomeAddress();
+        void showSetAddressFrag();
     }
 
     public RegisterFragment() {
@@ -90,7 +90,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
 
         // TODO add firebase register
         //mCallBack.showMap();
-        mCallBack.setHomeAddress();
+        mCallBack.showSetAddressFrag();
 
     }
 
