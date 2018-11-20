@@ -3,6 +3,7 @@ package com.resrater.residentialratings;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.util.Patterns;
@@ -11,6 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 
 /**
@@ -23,6 +31,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     private Button btnRegister;
     private String email, password;
     private registerInterface mCallBack;
+    private FirebaseAuth mAuth;
 
     public interface registerInterface {
         void showMap();
@@ -48,6 +57,8 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         btnRegister = (Button) root.findViewById(R.id.btnRegister);
         btnRegister.setOnClickListener(this);
 
+        mAuth = FirebaseAuth.getInstance();
+
         return root;
     }
 
@@ -68,7 +79,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         registerUser();
-        // TODO add firebase register
 
     }
 
@@ -88,9 +98,26 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
             return;
         }
 
-        // TODO add firebase register
-        mCallBack.showSetAddressFrag();
-
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(
+                new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(getActivity(), "Successfully registered",
+                                    Toast.LENGTH_SHORT).show();
+                            mCallBack.showSetAddressFrag();
+                        }else{
+                            if(task.getException() instanceof FirebaseAuthUserCollisionException){
+                                Toast.makeText(getActivity(), "Already registered, go to login page",
+                                        Toast.LENGTH_SHORT).show();
+                            }else{
+                                Toast.makeText(getActivity(), "Unable to register",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }
+        );
     }
 
 }

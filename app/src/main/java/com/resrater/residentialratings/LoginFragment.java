@@ -3,6 +3,7 @@ package com.resrater.residentialratings;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.util.Patterns;
@@ -11,6 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 
 /**
@@ -23,6 +31,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
     private Button btnLogin, btnSignup;
     private String email, password;
     private loginInterface mCallBack;
+    private FirebaseAuth mAuth;
 
     public interface loginInterface {
         void signUpClicked();
@@ -50,6 +59,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         btnLogin.setOnClickListener(this);
         btnSignup.setOnClickListener(this);
 
+        mAuth = FirebaseAuth.getInstance();
+
         return root;
     }
 
@@ -72,7 +83,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btnLogin:
-                // TODO add firebase login
                 login();
                 break;
             case R.id.btnSignup:
@@ -97,8 +107,22 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
             return;
         }
 
-        // TODO add firebase login and get home address
-        mCallBack.showMap();
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(
+                new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()){
+                    Toast.makeText(getActivity(), "Successfully logged in!",
+                            Toast.LENGTH_SHORT).show();
+                    // TODO get home address from database, then set map home address
+                    mCallBack.showMap();
+                }else{
+                    Toast.makeText(getActivity(), task.getException().getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
     }
 
 
