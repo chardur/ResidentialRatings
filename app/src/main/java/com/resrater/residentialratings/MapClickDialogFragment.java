@@ -11,6 +11,7 @@ import android.location.Address;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -20,7 +21,17 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.resrater.residentialratings.models.Rating;
 
 
 /**
@@ -32,6 +43,8 @@ public class MapClickDialogFragment extends DialogFragment {
     private View root;
     private android.location.Address selectedAddress;
     private TextView mapClickDialogAddressText;
+    private RatingBar addRatingBar, mapSelectionRatingBar;
+    private TextInputEditText feedbackText;
 
     public MapClickDialogFragment() {
         // Required empty public constructor
@@ -48,34 +61,9 @@ public class MapClickDialogFragment extends DialogFragment {
 
         btnAddRating = (Button) root.findViewById(R.id.btnAddRating);
         btnGoBack = (Button) root.findViewById(R.id.btnGoBack);
-
-        View.OnClickListener buttonListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.btnAddRating:
-                        // TODO add firebase rating
-                        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-                        hideKeyboard();
-                        dismiss();
-                        break;
-                    case R.id.btnGoBack:
-                        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-                        dismiss();
-                        break;
-                }
-            }
-        };
-
-        btnGoBack.setOnClickListener(buttonListener);
-        btnAddRating.setOnClickListener(buttonListener);
-
-        mapClickDialogAddressText = (TextView) root.findViewById(R.id.mapClickDialogAddressText);
-        if (selectedAddress != null){
-            if (selectedAddress.getFeatureName() != null && selectedAddress.getThoroughfare() != null) {
-                mapClickDialogAddressText.setText(selectedAddress.getFeatureName() + " " + selectedAddress.getThoroughfare());
-            }
-        }
+        addRatingBar = (RatingBar) root.findViewById(R.id.addRatingBar);
+        mapSelectionRatingBar = (RatingBar) root.findViewById(R.id.mapSelectionRatingBar);
+        feedbackText = (TextInputEditText) root.findViewById(R.id.feedbackText);
 
         return root;
     }
@@ -89,20 +77,70 @@ public class MapClickDialogFragment extends DialogFragment {
         return dialog;
     }
 
-    public void setSelectedAddress(Address address) {
-        selectedAddress = address;
-    }
+    @Override
+    public void onResume() {
+        super.onResume();
 
-    public void hideKeyboard() {
-
-        View view = getActivity().getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getContext().
-                    getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        mapClickDialogAddressText = (TextView) root.findViewById(R.id.mapClickDialogAddressText);
+        if (selectedAddress != null){
+            if (selectedAddress.getFeatureName() != null && selectedAddress.getThoroughfare() != null) {
+                mapClickDialogAddressText.setText(selectedAddress.getFeatureName() + " " + selectedAddress.getThoroughfare());
+                System.out.println(selectedAddress.getAddressLine(0));
             }
         }
+
+        View.OnClickListener buttonListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.btnAddRating:
+                        //add new rating
+                        addRating();
+                        break;
+                    case R.id.btnGoBack:
+                        dismiss();
+                        break;
+                }
+            }
+        };
+
+        btnGoBack.setOnClickListener(buttonListener);
+        btnAddRating.setOnClickListener(buttonListener);
+
+    }
+
+    private void addRating() {
+
+        //create the rating
+        Rating newRating = new Rating();
+        newRating.setScore((int) addRatingBar.getRating());
+        newRating.setAddress(selectedAddress.getAddressLine(0));
+        newRating.setMapLocation(new GeoPoint(selectedAddress.getLatitude(),
+                selectedAddress.getLongitude()));
+        newRating.setFeedback(feedbackText.getText().toString());
+        newRating.setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+        // add rating to the database
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference newRatingRef = db.collection("ratings").document();
+        newRatingRef.set(newRating).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Toast.makeText(getActivity(), "Rating added!",
+                            Toast.LENGTH_SHORT).show();
+                    dismiss();
+                }else{
+                    Toast.makeText(getActivity(), "Failed, please try again",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+
+    public void setSelectedAddress(Address address) {
+        selectedAddress = address;
     }
 
 }

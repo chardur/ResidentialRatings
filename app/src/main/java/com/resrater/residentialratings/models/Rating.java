@@ -1,25 +1,24 @@
 package com.resrater.residentialratings.models;
 
-import android.location.Address;
-
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Date;
 
 public class Rating {
 
-    private String feedback, userID, ratingID;
+    private String feedback, userID, address;
     private int score;
     private @ServerTimestamp Date timestamp;
-    private android.location.Address address;
+    private GeoPoint mapLocation;
 
-    public Rating(String feedback, String userID, String ratingID, int score, Date timestamp, Address address) {
+    public Rating(String feedback, String userID, String address, int score, Date timestamp, GeoPoint mapLocation) {
         this.feedback = feedback;
         this.userID = userID;
-        this.ratingID = ratingID;
+        this.address = address;
         this.score = score;
         this.timestamp = timestamp;
-        this.address = address;
+        this.mapLocation = mapLocation;
     }
 
     public Rating() {
@@ -41,12 +40,12 @@ public class Rating {
         this.userID = userID;
     }
 
-    public String getRatingID() {
-        return ratingID;
+    public String getAddress() {
+        return address;
     }
 
-    public void setRatingID(String ratingID) {
-        this.ratingID = ratingID;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public int getScore() {
@@ -65,11 +64,12 @@ public class Rating {
         this.timestamp = timestamp;
     }
 
-    public Address getAddress() {
-        return address;
+    public GeoPoint getMapLocation() {
+        return mapLocation;
     }
 
-    public void setAddress(Address address) {
-        this.address = address;
+    public void setMapLocation(GeoPoint mapLocation) {
+        this.mapLocation = mapLocation;
     }
 }
+
