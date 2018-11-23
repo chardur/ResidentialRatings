@@ -14,11 +14,18 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.resrater.residentialratings.models.User;
 
 
 /**
@@ -32,10 +39,13 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
     private String email, password;
     private loginInterface mCallBack;
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+    private LatLng homeAddress;
 
     public interface loginInterface {
         void signUpClicked();
         void showMap();
+        void setMapHomeAddress(LatLng address);
     }
 
     public LoginFragment() {
@@ -60,6 +70,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         btnSignup.setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         return root;
     }
@@ -114,8 +125,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
                 if (task.isSuccessful()){
                     Toast.makeText(getActivity(), "Successfully logged in!",
                             Toast.LENGTH_SHORT).show();
-                    // TODO get home address from database, then set map home address
-                    mCallBack.showMap();
+
+                    loadMap();
                 }else{
                     Toast.makeText(getActivity(), task.getException().getMessage(),
                             Toast.LENGTH_SHORT).show();
@@ -123,6 +134,30 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
             }
         });
 
+    }
+
+    private void loadMap(){
+        CollectionReference usersRef = db.collection("users");
+        Query addressQuery = usersRef.whereEqualTo("userID", mAuth.getCurrentUser().getUid());
+        addressQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()){
+                    User user = new User();
+                    for (QueryDocumentSnapshot u: task.getResult()){
+                        user = u.toObject(User.class);
+                    }
+                    homeAddress = new LatLng(user.getHomeAddress().getLatitude(), user.getHomeAddress().getLongitude());
+                    mCallBack.setMapHomeAddress(homeAddress);
+                    mCallBack.showMap();
+                }else{
+                    Toast.makeText(getActivity(), "Failed to get home address",
+                            Toast.LENGTH_SHORT).show();
+                    System.out.println("#################################");
+                    System.out.println("Address failed");
+                }
+            }
+        });
     }
 
 

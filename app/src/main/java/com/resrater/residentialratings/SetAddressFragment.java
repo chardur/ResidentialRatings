@@ -4,6 +4,7 @@ package com.resrater.residentialratings;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
@@ -27,6 +28,13 @@ import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.resrater.residentialratings.models.User;
 
 
 /**
@@ -39,6 +47,9 @@ public class SetAddressFragment extends Fragment {
     private LatLng homeAddress;
     private Button btnSaveAddress;
     private SetAddressInterface mCallBack;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+    private DocumentReference newUserRef;
 
     interface SetAddressInterface{
        void setMapHomeAddress(LatLng address);
@@ -70,6 +81,10 @@ public class SetAddressFragment extends Fragment {
         fm.beginTransaction()
                 .replace(R.id.place_autocomplete_fragment, autocompleteFragment)
                 .commit();
+
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+        newUserRef = db.collection("users").document();
 
         return root;
     }
@@ -110,9 +125,32 @@ public class SetAddressFragment extends Fragment {
         btnSaveAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO add home address to database
-                mCallBack.setMapHomeAddress(homeAddress);
-                mCallBack.showMap();
+
+                if (homeAddress != null && mAuth.getCurrentUser() != null) {
+
+                    //create a new user
+                    User newUser = new User();
+                    newUser.setUserID(mAuth.getCurrentUser().getUid());
+                    newUser.setEmail(mAuth.getCurrentUser().getEmail());
+                    newUser.setHomeAddress(new GeoPoint(homeAddress.latitude, homeAddress.longitude));
+
+                    // insert the new user in firestore
+                    newUserRef.set(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                mCallBack.setMapHomeAddress(homeAddress);
+                                mCallBack.showMap();
+                            }else{
+                                Toast.makeText(getActivity(), "Failed, please try again",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }else{
+                    Toast.makeText(getActivity(), "You must select a home address",
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
