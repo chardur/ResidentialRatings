@@ -1,6 +1,8 @@
 package com.resrater.residentialratings;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.annotation.NonNull;
@@ -70,21 +72,28 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         // listen for changes to the residence collection so that new ratings appear on map
         mResidenceRef.addSnapshotListener(MetadataChanges.INCLUDE, new EventListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots,
+                                @javax.annotation.Nullable FirebaseFirestoreException e) {
 
                 //get changes and update when modified only, if you do it when created the rating shows 0
-                for (DocumentChange document: queryDocumentSnapshots.getDocumentChanges()){
+                for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()) {
                     switch (document.getType()) {
                         case MODIFIED:
-                        Residence residence = document.getDocument().toObject(Residence.class);
-                        // TODO change icon
-                        mMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(residence.getMapLocation()
-                                        .getLatitude(), residence.getMapLocation().getLongitude()))
-                                .title(residence.getAddress().substring(0, 10) + "..., Rating: " + residence.getAvgRating())
-                                .draggable(true)
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue))).showInfoWindow();
-                        break;
+                            Residence residence = document.getDocument().toObject(Residence.class);
+
+                            // set the icon based on rating
+                            int icon = getIcon(residence.getAvgRating());
+                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(icon);
+                            Bitmap b = bitmapdraw.getBitmap();
+                            Bitmap iconMarker = Bitmap.createScaledBitmap(b, 250, 250, false);
+
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(residence.getMapLocation()
+                                            .getLatitude(), residence.getMapLocation().getLongitude()))
+                                    .title(residence.getAddress().substring(0, 10) + "..., Rating: " + residence.getAvgRating())
+                                    .draggable(true)
+                                    .icon(BitmapDescriptorFactory.fromBitmap(iconMarker))).showInfoWindow();
+                            break;
                     }
                 }
             }
@@ -131,20 +140,27 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mResidenceRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
 
-                    for (QueryDocumentSnapshot document: task.getResult()){
+                    for (QueryDocumentSnapshot document : task.getResult()) {
                         Residence residence = document.toObject(Residence.class);
-                        // TODO change icon
+
+                        // set the icon based on rating
+                        int icon = getIcon(residence.getAvgRating());
+                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(icon);
+                        Bitmap b = bitmapdraw.getBitmap();
+                        Bitmap iconMarker = Bitmap.createScaledBitmap(b, 200, 200, false);
+
+                        // add the marker to the map
                         mMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(residence.getMapLocation()
                                         .getLatitude(), residence.getMapLocation().getLongitude()))
-                                .title(residence.getAddress().substring(0, 10) + "..., Rating: "+ residence.getAvgRating())
+                                .title(residence.getAddress().substring(0, 10) + "..., Rating: " + residence.getAvgRating())
                                 .draggable(true)
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue)));
+                                .icon(BitmapDescriptorFactory.fromBitmap(iconMarker)));
                     }
 
-                }else{
+                } else {
                     Toast.makeText(getActivity(), "Failed to update ratings map",
                             Toast.LENGTH_SHORT).show();
                 }
@@ -154,13 +170,39 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
+    private int getIcon(double avgRating) {
+        int[] iconArray = new int[6];
+        iconArray[0] = R.drawable.ic_0star;
+        iconArray[1] = R.drawable.ic_1star;
+        iconArray[2] = R.drawable.ic_2star;
+        iconArray[3] = R.drawable.ic_3star;
+        iconArray[4] = R.drawable.ic_4star;
+        iconArray[5] = R.drawable.ic_5star;
+
+        if (avgRating >= 0 && avgRating < 1) {
+            return iconArray[0];
+        } else if (avgRating >= 1 && avgRating < 2) {
+            return iconArray[1];
+        } else if (avgRating >= 2 && avgRating < 3) {
+            return iconArray[2];
+        } else if (avgRating >= 3 && avgRating < 4) {
+            return iconArray[3];
+        } else if (avgRating >= 4 && avgRating < 5) {
+            return iconArray[4];
+        } else if (avgRating >= 5 && avgRating < 6) {
+            return iconArray[5];
+        }
+
+        return iconArray[0];
+    }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
         try {
             mCallBack = (mapsInterface) activity;
-        }catch (ClassCastException e){
+        } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() +
                     "must use maps interface");
         }
@@ -193,7 +235,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
                 List<Address> addresses = new ArrayList<>();
                 try {
-                    addresses = geocoder.getFromLocation(point.latitude, point.longitude,1);
+                    addresses = geocoder.getFromLocation(point.latitude, point.longitude, 1);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -215,7 +257,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
                 List<Address> addresses = new ArrayList<>();
                 try {
-                    addresses = geocoder.getFromLocation(point.latitude, point.longitude,1);
+                    addresses = geocoder.getFromLocation(point.latitude, point.longitude, 1);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
