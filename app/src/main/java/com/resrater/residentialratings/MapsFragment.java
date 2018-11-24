@@ -30,6 +30,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -67,20 +68,24 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public void onStart() {
         super.onStart();
         // listen for changes to the residence collection so that new ratings appear on map
-        mResidenceRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        mResidenceRef.addSnapshotListener(MetadataChanges.INCLUDE, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
 
-                //get changes and update
+                //get changes and update when modified only, if you do it when created the rating shows 0
                 for (DocumentChange document: queryDocumentSnapshots.getDocumentChanges()){
-                    Residence residence = document.getDocument().toObject(Residence.class);
-                    // TODO change icon
-                    mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(residence.getMapLocation()
-                                    .getLatitude(), residence.getMapLocation().getLongitude()))
-                            .title(residence.getAddress().substring(0, 10) + "..., Rating: "+ residence.getAvgRating())
-                            .draggable(true)
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue)));
+                    switch (document.getType()) {
+                        case MODIFIED:
+                        Residence residence = document.getDocument().toObject(Residence.class);
+                        // TODO change icon
+                        mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(residence.getMapLocation()
+                                        .getLatitude(), residence.getMapLocation().getLongitude()))
+                                .title(residence.getAddress().substring(0, 10) + "..., Rating: " + residence.getAvgRating())
+                                .draggable(true)
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue))).showInfoWindow();
+                        break;
+                    }
                 }
             }
         });
