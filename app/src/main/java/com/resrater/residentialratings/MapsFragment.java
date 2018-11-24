@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -69,7 +70,18 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mResidenceRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
-                addMapRatings();
+
+                //get changes and update
+                for (DocumentChange document: queryDocumentSnapshots.getDocumentChanges()){
+                    Residence residence = document.getDocument().toObject(Residence.class);
+                    // TODO change icon
+                    mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(residence.getMapLocation()
+                                    .getLatitude(), residence.getMapLocation().getLongitude()))
+                            .title(residence.getAddress().substring(0, 10) + "..., Rating: "+ residence.getAvgRating())
+                            .draggable(true)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue)));
+                }
             }
         });
 
@@ -120,8 +132,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         Residence residence = document.toObject(Residence.class);
                         // TODO change icon
                         mMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(residence.getMapLocation().getLatitude(), residence.getMapLocation().getLongitude()))
-                                .title(residence.getAddress()).draggable(true)
+                                .position(new LatLng(residence.getMapLocation()
+                                        .getLatitude(), residence.getMapLocation().getLongitude()))
+                                .title(residence.getAddress().substring(0, 10) + "..., Rating: "+ residence.getAvgRating())
+                                .draggable(true)
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue)));
                     }
 
@@ -184,12 +198,30 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     // display rating dialog
                     mCallBack.showMapClickDialog(selectedAddress);
                 }
-                //remove previously placed Marker
-                if (marker != null) {
-                    marker.remove();
+            }
+        });
+
+        // listener if user wants to click on marker on map
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                LatLng point = marker.getPosition();
+
+                List<Address> addresses = new ArrayList<>();
+                try {
+                    addresses = geocoder.getFromLocation(point.latitude, point.longitude,1);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                //place marker where user just clicked
-                marker = mMap.addMarker(new MarkerOptions().position(point).title("Marker"));
+
+                selectedAddress = addresses.get(0);
+                if (selectedAddress != null) {
+                    // display rating dialog
+                    mCallBack.showMapClickDialog(selectedAddress);
+                }
+
+                return false;
             }
         });
 
