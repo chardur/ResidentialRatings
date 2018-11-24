@@ -28,10 +28,15 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.resrater.residentialratings.models.Rating;
+import com.resrater.residentialratings.models.Residence;
 
 
 /**
@@ -45,6 +50,7 @@ public class MapClickDialogFragment extends DialogFragment {
     private TextView mapClickDialogAddressText;
     private RatingBar addRatingBar, mapSelectionRatingBar;
     private TextInputEditText feedbackText;
+    FirebaseFirestore db;
 
     public MapClickDialogFragment() {
         // Required empty public constructor
@@ -65,6 +71,8 @@ public class MapClickDialogFragment extends DialogFragment {
         mapSelectionRatingBar = (RatingBar) root.findViewById(R.id.mapSelectionRatingBar);
         feedbackText = (TextInputEditText) root.findViewById(R.id.feedbackText);
 
+        db = FirebaseFirestore.getInstance();
+
         return root;
     }
 
@@ -82,7 +90,7 @@ public class MapClickDialogFragment extends DialogFragment {
         super.onResume();
 
         mapClickDialogAddressText = (TextView) root.findViewById(R.id.mapClickDialogAddressText);
-        if (selectedAddress != null){
+        if (selectedAddress != null) {
             if (selectedAddress.getFeatureName() != null && selectedAddress.getThoroughfare() != null) {
                 mapClickDialogAddressText.setText(selectedAddress.getFeatureName() + " " + selectedAddress.getThoroughfare());
                 System.out.println(selectedAddress.getAddressLine(0));
@@ -94,8 +102,8 @@ public class MapClickDialogFragment extends DialogFragment {
             public void onClick(View v) {
                 switch (v.getId()) {
                     case R.id.btnAddRating:
-                        //add new rating
-                        addRating();
+                        // check if residence exists, then add rating
+                        addResidence();
                         break;
                     case R.id.btnGoBack:
                         dismiss();
@@ -109,28 +117,27 @@ public class MapClickDialogFragment extends DialogFragment {
 
     }
 
-    private void addRating() {
+    private void addRating(Residence residence) {
 
         //create the rating
         Rating newRating = new Rating();
         newRating.setScore((int) addRatingBar.getRating());
-        newRating.setAddress(selectedAddress.getAddressLine(0));
-        newRating.setMapLocation(new GeoPoint(selectedAddress.getLatitude(),
-                selectedAddress.getLongitude()));
+        //newRating.setAddress(selectedAddress.getAddressLine(0));
+        //newRating.setMapLocation(new GeoPoint(selectedAddress.getLatitude(), selectedAddress.getLongitude()));
         newRating.setFeedback(feedbackText.getText().toString());
         newRating.setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
         // add rating to the database
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference newRatingRef = db.collection("ratings").document();
+        DocumentReference newRatingRef = db.collection("residence")
+                .document(residence.getAddress()).collection("ratings").document();
         newRatingRef.set(newRating).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
                     Toast.makeText(getActivity(), "Rating added!",
                             Toast.LENGTH_SHORT).show();
                     dismiss();
-                }else{
+                } else {
                     Toast.makeText(getActivity(), "Failed, please try again",
                             Toast.LENGTH_SHORT).show();
                 }
@@ -138,6 +145,43 @@ public class MapClickDialogFragment extends DialogFragment {
         });
     }
 
+    private void addResidence() {
+        DocumentReference residenceDocRef = db.collection("residence")
+                .document(selectedAddress.getAddressLine(0));
+        residenceDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult().exists()) {
+                    // residence exists so add the rating
+                    Residence residence = task.getResult().toObject(Residence.class);
+                    addRating(residence);
+                } else if (task.getResult().exists() == false) {
+                    // add the residence to the db, then add the rating
+                    final Residence newResidence = new Residence();
+                    newResidence.setAddress(selectedAddress.getAddressLine(0));
+                    newResidence.setMapLocation(new GeoPoint(selectedAddress.getLatitude(), selectedAddress.getLongitude()));
+                    newResidence.setAvgRating(0);
+                    newResidence.setNumRatings(0);
+
+                    DocumentReference newResDocRef = db.collection("residence").document();
+                    newResDocRef.set(newResidence).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                addRating(newResidence);
+                            } else {
+                                Toast.makeText(getActivity(), "Failed to add residence, please try again",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                } else {
+                    Toast.makeText(getActivity(), "Failed to determine if residence exists, please try again",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 
     public void setSelectedAddress(Address address) {
         selectedAddress = address;

@@ -7,18 +7,15 @@ import java.util.Date;
 
 public class Rating {
 
-    private String feedback, userID, address;
+    private String feedback, userID;
     private int score;
     private @ServerTimestamp Date timestamp;
-    private GeoPoint mapLocation;
 
-    public Rating(String feedback, String userID, String address, int score, Date timestamp, GeoPoint mapLocation) {
+    public Rating(String feedback, String userID, int score, Date timestamp) {
         this.feedback = feedback;
         this.userID = userID;
-        this.address = address;
         this.score = score;
         this.timestamp = timestamp;
-        this.mapLocation = mapLocation;
     }
 
     public Rating() {
@@ -40,14 +37,6 @@ public class Rating {
         this.userID = userID;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public int getScore() {
         return score;
     }
@@ -62,14 +51,6 @@ public class Rating {
 
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public GeoPoint getMapLocation() {
-        return mapLocation;
-    }
-
-    public void setMapLocation(GeoPoint mapLocation) {
-        this.mapLocation = mapLocation;
     }
 }
 
