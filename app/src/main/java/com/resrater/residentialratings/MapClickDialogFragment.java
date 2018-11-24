@@ -26,15 +26,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 import com.resrater.residentialratings.models.Rating;
 import com.resrater.residentialratings.models.Residence;
 
@@ -93,7 +97,6 @@ public class MapClickDialogFragment extends DialogFragment {
         if (selectedAddress != null) {
             if (selectedAddress.getFeatureName() != null && selectedAddress.getThoroughfare() != null) {
                 mapClickDialogAddressText.setText(selectedAddress.getFeatureName() + " " + selectedAddress.getThoroughfare());
-                System.out.println(selectedAddress.getAddressLine(0));
             }
         }
 
@@ -117,30 +120,60 @@ public class MapClickDialogFragment extends DialogFragment {
 
     }
 
-    private void addRating(Residence residence) {
+    private Task<Void> addRating(final Residence residence) {
 
         //create the rating
-        Rating newRating = new Rating();
+        final Rating newRating = new Rating();
         newRating.setScore((int) addRatingBar.getRating());
         //newRating.setAddress(selectedAddress.getAddressLine(0));
         //newRating.setMapLocation(new GeoPoint(selectedAddress.getLatitude(), selectedAddress.getLongitude()));
         newRating.setFeedback(feedbackText.getText().toString());
         newRating.setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid());
-
-        // add rating to the database
-        DocumentReference newRatingRef = db.collection("residence")
+        final DocumentReference newRatingRef = db.collection("residence")
                 .document(residence.getAddress()).collection("ratings").document();
-        newRatingRef.set(newRating).addOnCompleteListener(new OnCompleteListener<Void>() {
+
+        // In a transaction, add the new rating and update the aggregate totals
+        return db.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Toast.makeText(getActivity(), "Rating added!",
-                            Toast.LENGTH_SHORT).show();
-                    dismiss();
-                } else {
-                    Toast.makeText(getActivity(), "Failed, please try again",
-                            Toast.LENGTH_SHORT).show();
-                }
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+
+                // Compute new number of ratings
+                int newNumRatings = residence.getNumRatings() + 1;
+
+                // Compute new average rating
+                double oldRatingTotal = residence.getAvgRating() * residence.getNumRatings();
+                double newAvgRating = (oldRatingTotal + newRating.getScore()) / newNumRatings;
+
+                // Set new residence info
+                residence.setNumRatings(newNumRatings);
+                residence.setAvgRating(newAvgRating);
+
+                // Update residence
+                transaction.update(db.collection("residence")
+                        .document(residence.getAddress()), "avgRating", residence.getAvgRating());
+
+                transaction.update(db.collection("residence")
+                        .document(residence.getAddress()), "numRatings", residence.getNumRatings());
+
+                // Update rating
+                transaction.set(newRatingRef, newRating);
+
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(getActivity(), "Rating added!",
+                        Toast.LENGTH_SHORT).show();
+                dismiss();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                System.out.println(e.toString());
+                Toast.makeText(getActivity(), "Failed to add rating, please try again",
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -153,8 +186,10 @@ public class MapClickDialogFragment extends DialogFragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult().exists()) {
                     // residence exists so add the rating
+
                     Residence residence = task.getResult().toObject(Residence.class);
                     addRating(residence);
+
                 } else if (task.getResult().exists() == false) {
                     // add the residence to the db, then add the rating
                     final Residence newResidence = new Residence();
@@ -163,7 +198,7 @@ public class MapClickDialogFragment extends DialogFragment {
                     newResidence.setAvgRating(0);
                     newResidence.setNumRatings(0);
 
-                    DocumentReference newResDocRef = db.collection("residence").document();
+                    DocumentReference newResDocRef = db.collection("residence").document(newResidence.getAddress());
                     newResDocRef.set(newResidence).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {

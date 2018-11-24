@@ -5,18 +5,18 @@ import com.google.firebase.firestore.GeoPoint;
 public class Residence {
 
     private String address;
-    double avgRating;
-    int numRatings;
-    GeoPoint mapLocation;
+    private double avgRating;
+    private int numRatings;
+    private GeoPoint mapLocation;
+
+    public Residence() {
+    }
 
     public Residence(String address, double avgRating, int numRatings, GeoPoint mapLocation) {
         this.address = address;
         this.avgRating = avgRating;
         this.numRatings = numRatings;
         this.mapLocation = mapLocation;
-    }
-
-    public Residence() {
     }
 
     public String getAddress() {
