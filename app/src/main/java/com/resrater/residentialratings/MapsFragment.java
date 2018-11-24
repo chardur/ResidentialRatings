@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,6 +22,17 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.resrater.residentialratings.models.Residence;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,6 +50,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private Marker marker, homeMarker;
     Geocoder geocoder;
     private android.location.Address selectedAddress;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CollectionReference mResidenceRef = db.collection("residence");
+
 
     public MapsFragment() {
 
@@ -45,6 +60,19 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     public interface mapsInterface {
         public void showMapClickDialog(Address selectedAddress);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // listen for changes to the residence collection so that new ratings appear on map
+        mResidenceRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                addMapRatings();
+            }
+        });
+
     }
 
     @Nullable
@@ -77,8 +105,33 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         // geocoder turns a latlng into a human address
         geocoder = new Geocoder(this.getContext(), Locale.US);
 
-        // start the map at the users home
-        //home = new LatLng(40.647360, -112.306890);
+        // get ratings from database and add them to the map
+        addMapRatings();
+
+    }
+
+    private void addMapRatings() {
+        mResidenceRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+
+                    for (QueryDocumentSnapshot document: task.getResult()){
+                        Residence residence = document.toObject(Residence.class);
+                        // TODO change icon
+                        mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(residence.getMapLocation().getLatitude(), residence.getMapLocation().getLongitude()))
+                                .title(residence.getAddress()).draggable(true)
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue)));
+                    }
+
+                }else{
+                    Toast.makeText(getActivity(), "Failed to update ratings map",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
 
     }
 
