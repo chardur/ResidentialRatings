@@ -1,15 +1,21 @@
 package com.resrater.residentialratings;
 
+import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity implements MapsFragment.mapsInterface,
 LoginFragment.loginInterface, RegisterFragment.registerInterface, SetAddressFragment.SetAddressInterface{
@@ -38,12 +44,32 @@ LoginFragment.loginInterface, RegisterFragment.registerInterface, SetAddressFrag
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.logOut:
+                FirebaseAuth.getInstance().signOut();
+                finish();
+                startActivity(new Intent(this, MainActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public void showMapClickDialog(Address selectedAddress) {
         MapClickDialogFragment mapClickDialogFrag = new MapClickDialogFragment();
         mapClickDialogFrag.setCancelable(true);
         mapClickDialogFrag.show(getSupportFragmentManager(), "mapClickDialog");
         mapClickDialogFrag.setSelectedAddress(selectedAddress);
-        //mapClickDialogFrag.setFeedbackList();
     }
 
     @Override

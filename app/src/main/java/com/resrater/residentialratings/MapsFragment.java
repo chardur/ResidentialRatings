@@ -174,7 +174,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         mMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(residence.getMapLocation()
                                         .getLatitude(), residence.getMapLocation().getLongitude()))
-                                .title(residence.getAddress().substring(0, 10) + "..., Rating: " + residence.getAvgRating())
+                                .title(residence.getAddress().substring(0, 15) + "...")
                                 .draggable(true)
                                 .icon(BitmapDescriptorFactory.fromBitmap(iconMarker)));
                     }

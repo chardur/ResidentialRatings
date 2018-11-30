@@ -243,8 +243,10 @@ public class MapClickDialogFragment extends DialogFragment {
                     if (task.isSuccessful()){
                         DocumentSnapshot document = task.getResult();
                         Residence residence = document.toObject(Residence.class);
-                        mapSelectionRatingBar.setRating(Float.parseFloat(String.valueOf(residence.getAvgRating())));
-                        currentRatingText.setText("Current Rating: " + residence.getAvgRating());
+                        if (residence != null) {
+                            mapSelectionRatingBar.setRating(Float.parseFloat(String.valueOf(residence.getAvgRating())));
+                            currentRatingText.setText("Current Rating: " + residence.getAvgRating());
+                        }
                     }else{
                         Toast.makeText(getActivity(), "Failed to get ratingbar value",
                                 Toast.LENGTH_SHORT).show();
