@@ -68,6 +68,26 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         public void showMapClickDialog(Address selectedAddress);
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        root = inflater.inflate(R.layout.fragment_maps, container, false);
+        getActivity().setTitle("Add / View ratings below:");
+
+        FragmentManager fm = getChildFragmentManager();
+
+        // this was added to convert mapActivity to mapFragment
+        if (mapFragment == null) {
+            mapFragment = SupportMapFragment.newInstance();
+            fm.beginTransaction()
+                    .replace(R.id.map, mapFragment)
+                    .commit();
+        }
+
+        return root;
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -81,20 +101,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()) {
                     switch (document.getType()) {
                         case MODIFIED:
-/*                            Residence residence = document.getDocument().toObject(Residence.class);
-
-                            // set the icon based on rating
-                            int icon = getIcon(residence.getAvgRating());
-                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(icon);
-                            Bitmap b = bitmapdraw.getBitmap();
-                            Bitmap iconMarker = Bitmap.createScaledBitmap(b, 250, 250, false);
-
-                            mMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(residence.getMapLocation()
-                                            .getLatitude(), residence.getMapLocation().getLongitude()))
-                                    .title(residence.getAddress().substring(0, 10) + "..., Rating: " + residence.getAvgRating())
-                                    .draggable(true)
-                                    .icon(BitmapDescriptorFactory.fromBitmap(iconMarker)));*/
+                            mMap.clear();
+                            setHomeMarker();
                             addMapRatings();
                             break;
                     }
@@ -118,26 +126,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         residenceChange.remove();
 
         super.onStop();
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        root = inflater.inflate(R.layout.fragment_maps, container, false);
-        getActivity().setTitle("Add / View ratings below:");
-
-        FragmentManager fm = getChildFragmentManager();
-
-        // this was added to convert mapActivity to mapFragment
-        if (mapFragment == null) {
-            mapFragment = SupportMapFragment.newInstance();
-            fm.beginTransaction()
-                    .replace(R.id.map, mapFragment)
-                    .commit();
-        }
-
-        return root;
     }
 
     @Override
@@ -236,13 +224,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
-
-        // move the map to the users home and add a marker
-        if (home != null) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(home, DEFAULT_ZOOM));
-            homeMarker = mMap.addMarker(new MarkerOptions().position(home).title("Home").draggable(true)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue)));
-        }
+        setHomeMarker();
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(home, DEFAULT_ZOOM));
 
         // listener for user to select locations on the map
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -295,6 +278,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     public void setHomeAddress(LatLng address) {
         home = address;
+    }
+
+    public void setHomeMarker(){
+        // move the map to the users home and add a marker
+        if (home != null) {
+            homeMarker = mMap.addMarker(new MarkerOptions().position(home).title("Home").draggable(true)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue)));
+        }
     }
 
 }
