@@ -43,6 +43,7 @@ LoginFragment.loginInterface, RegisterFragment.registerInterface, SetAddressFrag
         mapClickDialogFrag.setCancelable(true);
         mapClickDialogFrag.show(getSupportFragmentManager(), "mapClickDialog");
         mapClickDialogFrag.setSelectedAddress(selectedAddress);
+        //mapClickDialogFrag.setFeedbackList();
     }
 
     @Override

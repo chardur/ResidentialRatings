@@ -1,10 +1,7 @@
 package com.resrater.residentialratings;
 
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
@@ -18,9 +15,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,11 +33,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 import com.resrater.residentialratings.models.Rating;
 import com.resrater.residentialratings.models.Residence;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -51,9 +51,12 @@ public class MapClickDialogFragment extends DialogFragment {
     private Button btnGoBack, btnAddRating;
     private View root;
     private android.location.Address selectedAddress;
-    private TextView mapClickDialogAddressText;
+    private TextView mapClickDialogAddressText, currentRatingText;
     private RatingBar addRatingBar, mapSelectionRatingBar;
     private TextInputEditText feedbackText;
+    private List<String> feedbackList;
+    private ListView feedbackListView;
+    private ArrayAdapter<String> adapter;
     FirebaseFirestore db;
 
     public MapClickDialogFragment() {
@@ -74,6 +77,8 @@ public class MapClickDialogFragment extends DialogFragment {
         addRatingBar = (RatingBar) root.findViewById(R.id.addRatingBar);
         mapSelectionRatingBar = (RatingBar) root.findViewById(R.id.mapSelectionRatingBar);
         feedbackText = (TextInputEditText) root.findViewById(R.id.feedbackText);
+        feedbackListView = (ListView) root.findViewById(R.id.feedbackList);
+        currentRatingText = (TextView) root.findViewById(R.id.currentRatingText);
 
         db = FirebaseFirestore.getInstance();
 
@@ -118,6 +123,13 @@ public class MapClickDialogFragment extends DialogFragment {
         btnGoBack.setOnClickListener(buttonListener);
         btnAddRating.setOnClickListener(buttonListener);
 
+        db = FirebaseFirestore.getInstance();
+        feedbackList = new ArrayList<>();
+        adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, feedbackList);
+        feedbackListView.setAdapter(adapter);
+        setFeedbackList();
+        setRatingBarValue();
+
     }
 
     private Task<Void> addRating(final Residence residence) {
@@ -125,8 +137,6 @@ public class MapClickDialogFragment extends DialogFragment {
         //create the rating
         final Rating newRating = new Rating();
         newRating.setScore((int) addRatingBar.getRating());
-        //newRating.setAddress(selectedAddress.getAddressLine(0));
-        //newRating.setMapLocation(new GeoPoint(selectedAddress.getLatitude(), selectedAddress.getLongitude()));
         newRating.setFeedback(feedbackText.getText().toString());
         newRating.setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid());
         final DocumentReference newRatingRef = db.collection("residence")
@@ -220,6 +230,57 @@ public class MapClickDialogFragment extends DialogFragment {
 
     public void setSelectedAddress(Address address) {
         selectedAddress = address;
+    }
+
+    public void setRatingBarValue(){
+        if (selectedAddress != null){
+            DocumentReference ratingBarRef = db.collection("residence")
+                    .document(selectedAddress.getAddressLine(0));
+
+            ratingBarRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()){
+                        DocumentSnapshot document = task.getResult();
+                        Residence residence = document.toObject(Residence.class);
+                        mapSelectionRatingBar.setRating(Float.parseFloat(String.valueOf(residence.getAvgRating())));
+                        currentRatingText.setText("Current Rating: " + residence.getAvgRating());
+                    }else{
+                        Toast.makeText(getActivity(), "Failed to get ratingbar value",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+        }
+    }
+
+    public void setFeedbackList(){
+        if (selectedAddress != null){
+
+            CollectionReference ratingRef = db.collection("residence")
+                    .document(selectedAddress.getAddressLine(0))
+                    .collection("ratings");
+
+            ratingRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()){
+                        for (QueryDocumentSnapshot document : task.getResult()){
+                            Rating rating = document.toObject(Rating.class);
+                            if (!rating.getFeedback().isEmpty() && rating.getFeedback() != null) {
+                                feedbackList.add(rating.getFeedback());
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+                    }else{
+                        Toast.makeText(getActivity(), "Failed to get feedback list",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+        }
     }
 
 }

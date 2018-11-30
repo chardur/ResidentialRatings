@@ -32,6 +32,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -56,6 +57,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private android.location.Address selectedAddress;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference mResidenceRef = db.collection("residence");
+    private ListenerRegistration residenceChange;
 
 
     public MapsFragment() {
@@ -70,7 +72,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public void onStart() {
         super.onStart();
         // listen for changes to the residence collection so that new ratings appear on map
-        mResidenceRef.addSnapshotListener(MetadataChanges.INCLUDE, new EventListener<QuerySnapshot>() {
+        residenceChange = mResidenceRef.addSnapshotListener(MetadataChanges.INCLUDE, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots,
                                 @javax.annotation.Nullable FirebaseFirestoreException e) {
@@ -79,7 +81,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 for (DocumentChange document : queryDocumentSnapshots.getDocumentChanges()) {
                     switch (document.getType()) {
                         case MODIFIED:
-                            Residence residence = document.getDocument().toObject(Residence.class);
+/*                            Residence residence = document.getDocument().toObject(Residence.class);
 
                             // set the icon based on rating
                             int icon = getIcon(residence.getAvgRating());
@@ -92,13 +94,30 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                             .getLatitude(), residence.getMapLocation().getLongitude()))
                                     .title(residence.getAddress().substring(0, 10) + "..., Rating: " + residence.getAvgRating())
                                     .draggable(true)
-                                    .icon(BitmapDescriptorFactory.fromBitmap(iconMarker))).showInfoWindow();
+                                    .icon(BitmapDescriptorFactory.fromBitmap(iconMarker)));*/
+                            addMapRatings();
                             break;
                     }
                 }
             }
         });
 
+    }
+
+    @Override
+    public void onPause() {
+
+        residenceChange.remove();
+
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+
+        residenceChange.remove();
+
+        super.onStop();
     }
 
     @Nullable
