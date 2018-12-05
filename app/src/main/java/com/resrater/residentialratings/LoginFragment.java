@@ -59,7 +59,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_login, container, false);
 
-        getActivity().setTitle("Login below:");
+        getActivity().setTitle(getString(R.string.loginbelow));
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         emailTextInput = (TextInputEditText) root.findViewById(R.id.email);
@@ -85,7 +85,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         }catch (ClassCastException e)
         {
             throw new ClassCastException(activity.toString()
-                    + "must use login interface");
+                    + getString(R.string.mustuselogininterface));
         }
 
     }
@@ -107,13 +107,13 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         email = emailTextInput.getText().toString().trim();
 
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailTextInput.setError("Please enter a valid email address");
+            emailTextInput.setError(getString(R.string.PleaseEnterValidEmail));
             emailTextInput.requestFocus();
             return;
         }
 
         if (password.isEmpty() || password.length() < 6) {
-            passwordTextInput.setError("Please enter a password with 6 or more characters");
+            passwordTextInput.setError(getString(R.string.PleaseEnterPassword6More));
             passwordTextInput.requestFocus();
             return;
         }
@@ -123,7 +123,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
-                    Toast.makeText(getActivity(), "Successfully logged in!",
+                    Toast.makeText(getActivity(), R.string.successfullyLoggedIn,
                             Toast.LENGTH_SHORT).show();
 
                     loadMap();
@@ -151,10 +151,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
                     mCallBack.setMapHomeAddress(homeAddress);
                     mCallBack.showMap();
                 }else{
-                    Toast.makeText(getActivity(), "Failed to get home address",
+                    Toast.makeText(getActivity(), R.string.failedToGetHomeAddress,
                             Toast.LENGTH_SHORT).show();
-                    System.out.println("#################################");
-                    System.out.println("Address failed");
                 }
             }
         });

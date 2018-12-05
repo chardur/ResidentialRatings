@@ -73,7 +73,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         root = inflater.inflate(R.layout.fragment_maps, container, false);
-        getActivity().setTitle("Add / View ratings below:");
+        getActivity().setTitle(getString(R.string.titleAddViewRating));
 
         FragmentManager fm = getChildFragmentManager();
 
@@ -168,7 +168,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     }
 
                 } else {
-                    Toast.makeText(getActivity(), "Failed to update ratings map",
+                    Toast.makeText(getActivity(), R.string.toastFailedUpdateRatingsMap,
                             Toast.LENGTH_SHORT).show();
                 }
             }
@@ -211,7 +211,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             mCallBack = (mapsInterface) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() +
-                    "must use maps interface");
+                    getString(R.string.mustUseMapsInterface));
         }
 
     }
@@ -283,7 +283,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public void setHomeMarker(){
         // move the map to the users home and add a marker
         if (home != null) {
-            homeMarker = mMap.addMarker(new MarkerOptions().position(home).title("Home").draggable(true)
+            homeMarker = mMap.addMarker(new MarkerOptions().position(home).title(getString(R.string.mapMarkerHome)).draggable(true)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home_blue)));
         }
     }

@@ -49,7 +49,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_register, container, false);
 
-        getActivity().setTitle("Register below:");
+        getActivity().setTitle(getString(R.string.titleRegisterBelow));
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         emailTextInput = (TextInputEditText) root.findViewById(R.id.emailRegister);
@@ -71,7 +71,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
 
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + "must use register interface");
+                    + getString(R.string.mustUseRegisterInterface));
         }
 
     }
@@ -87,13 +87,13 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         email = emailTextInput.getText().toString().trim();
 
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailTextInput.setError("Please enter a valid email address");
+            emailTextInput.setError(getString(R.string.resgisterPleaseEnterValidEmail));
             emailTextInput.requestFocus();
             return;
         }
 
         if (password.isEmpty() || password.length() < 6) {
-            passwordTextInput.setError("Please enter a password with 6 or more characters");
+            passwordTextInput.setError(getString(R.string.registerPleaseEnterPassword6More));
             passwordTextInput.requestFocus();
             return;
         }
@@ -103,15 +103,15 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(getActivity(), "Successfully registered",
+                            Toast.makeText(getActivity(), R.string.successfullyRegistered,
                                     Toast.LENGTH_SHORT).show();
                             mCallBack.showSetAddressFrag();
                         }else{
                             if(task.getException() instanceof FirebaseAuthUserCollisionException){
-                                Toast.makeText(getActivity(), "Already registered, go to login page",
+                                Toast.makeText(getActivity(), R.string.alreadyRegistered,
                                         Toast.LENGTH_SHORT).show();
                             }else{
-                                Toast.makeText(getActivity(), "Unable to register",
+                                Toast.makeText(getActivity(), R.string.unableToRegister,
                                         Toast.LENGTH_SHORT).show();
                             }
                         }

@@ -166,7 +166,7 @@ public class MapClickDialogFragment extends DialogFragment {
                 transaction.update(db.collection("residence")
                         .document(residence.getAddress()), "numRatings", residence.getNumRatings());
 
-                // Update rating
+                // add the rating
                 transaction.set(newRatingRef, newRating);
 
                 return null;
@@ -174,7 +174,7 @@ public class MapClickDialogFragment extends DialogFragment {
         }).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Toast.makeText(getActivity(), "Rating added!",
+                Toast.makeText(getActivity(), R.string.toastRatingAdded,
                         Toast.LENGTH_SHORT).show();
                 dismiss();
             }
@@ -182,7 +182,7 @@ public class MapClickDialogFragment extends DialogFragment {
             @Override
             public void onFailure(@NonNull Exception e) {
                 System.out.println(e.toString());
-                Toast.makeText(getActivity(), "Failed to add rating, please try again",
+                Toast.makeText(getActivity(), R.string.toastFailedToAddRating,
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -215,13 +215,13 @@ public class MapClickDialogFragment extends DialogFragment {
                             if (task.isSuccessful()) {
                                 addRating(newResidence);
                             } else {
-                                Toast.makeText(getActivity(), "Failed to add residence, please try again",
+                                Toast.makeText(getActivity(), R.string.toastFailedToAddResidence,
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
                 } else {
-                    Toast.makeText(getActivity(), "Failed to determine if residence exists, please try again",
+                    Toast.makeText(getActivity(), R.string.toastFailedToDetermine,
                             Toast.LENGTH_SHORT).show();
                 }
             }
@@ -245,10 +245,10 @@ public class MapClickDialogFragment extends DialogFragment {
                         Residence residence = document.toObject(Residence.class);
                         if (residence != null) {
                             mapSelectionRatingBar.setRating(Float.parseFloat(String.valueOf(residence.getAvgRating())));
-                            currentRatingText.setText("Current Rating: " + residence.getAvgRating());
+                            currentRatingText.setText(getString(R.string.currentRating) + residence.getAvgRating());
                         }
                     }else{
-                        Toast.makeText(getActivity(), "Failed to get ratingbar value",
+                        Toast.makeText(getActivity(), R.string.toastFailedToGetRatingBar,
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -276,7 +276,7 @@ public class MapClickDialogFragment extends DialogFragment {
                             }
                         }
                     }else{
-                        Toast.makeText(getActivity(), "Failed to get feedback list",
+                        Toast.makeText(getActivity(), R.string.toastFailedToGetFeedback,
                                 Toast.LENGTH_SHORT).show();
                     }
                 }

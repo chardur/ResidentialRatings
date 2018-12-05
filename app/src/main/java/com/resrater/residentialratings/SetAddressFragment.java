@@ -68,7 +68,7 @@ public class SetAddressFragment extends Fragment {
         root = inflater.inflate(R.layout.fragment_set_address, container, false);
 
         // set title and close keyboard
-        getActivity().setTitle("Set your home address:");
+        getActivity().setTitle(getString(R.string.titleSetHomeAddress));
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         // setup the places autocomplete fragment
@@ -98,7 +98,7 @@ public class SetAddressFragment extends Fragment {
 
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + "must use SetAddress interface");
+                    + getString(R.string.mustUseSetAddressInterface));
         }
 
     }
@@ -116,7 +116,7 @@ public class SetAddressFragment extends Fragment {
 
             @Override
             public void onError(Status status) {
-                Toast.makeText(getActivity(), "An error occurred, please try again",
+                Toast.makeText(getActivity(), R.string.toastErrorOccured,
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -142,13 +142,13 @@ public class SetAddressFragment extends Fragment {
                                 mCallBack.setMapHomeAddress(homeAddress);
                                 mCallBack.showMap();
                             }else{
-                                Toast.makeText(getActivity(), "Failed, please try again",
+                                Toast.makeText(getActivity(), R.string.toastFailedPleaseTryAgain,
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
                 }else{
-                    Toast.makeText(getActivity(), "You must select a home address",
+                    Toast.makeText(getActivity(), R.string.toastYouMustSelectHome,
                             Toast.LENGTH_SHORT).show();
                 }
             }

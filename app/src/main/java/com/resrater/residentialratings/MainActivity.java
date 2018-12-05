@@ -39,7 +39,7 @@ LoginFragment.loginInterface, RegisterFragment.registerInterface, SetAddressFrag
 
         fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.contentMain, loginFrag,"loginFrag")
+                .replace(R.id.contentMain, loginFrag,getString(R.string.loginFrag))
                 .commit();
     }
 
@@ -68,7 +68,7 @@ LoginFragment.loginInterface, RegisterFragment.registerInterface, SetAddressFrag
     public void showMapClickDialog(Address selectedAddress) {
         MapClickDialogFragment mapClickDialogFrag = new MapClickDialogFragment();
         mapClickDialogFrag.setCancelable(true);
-        mapClickDialogFrag.show(getSupportFragmentManager(), "mapClickDialog");
+        mapClickDialogFrag.show(getSupportFragmentManager(), getString(R.string.mapClickDialog));
         mapClickDialogFrag.setSelectedAddress(selectedAddress);
     }
 
@@ -76,7 +76,7 @@ LoginFragment.loginInterface, RegisterFragment.registerInterface, SetAddressFrag
     public void signUpClicked() {
         registerFrag = new RegisterFragment();
         fm.beginTransaction()
-                .replace(R.id.contentMain, registerFrag, "registerFrag")
+                .replace(R.id.contentMain, registerFrag, getString(R.string.registerFrag))
                 .addToBackStack(null)
                 .commit();
     }
@@ -84,14 +84,14 @@ LoginFragment.loginInterface, RegisterFragment.registerInterface, SetAddressFrag
     @Override
     public void showMap() {
         fm.beginTransaction()
-                .replace(R.id.contentMain, mapsFrag,"mapsFrag")
+                .replace(R.id.contentMain, mapsFrag,getString(R.string.mapsFrag))
                 .addToBackStack(null)
                 .commit();
     }
 
     public void showSetAddressFrag(){
         fm.beginTransaction()
-                .replace(R.id.contentMain, setAddressFrag,"setAddressFrag")
+                .replace(R.id.contentMain, setAddressFrag,getString(R.string.setAddressFrag))
                 .addToBackStack(null)
                 .commit();
     }

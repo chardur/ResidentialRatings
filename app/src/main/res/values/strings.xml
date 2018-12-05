@@ -5,4 +5,38 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="loginbelow">Login below:</string>
+    <string name="mustuselogininterface">must use login interface</string>
+    <string name="PleaseEnterValidEmail">Please enter a valid email address</string>
+    <string name="PleaseEnterPassword6More">Please enter a password with 6 or more characters</string>
+    <string name="successfullyLoggedIn">Successfully logged in!</string>
+    <string name="failedToGetHomeAddress">Failed to get home address</string>
+    <string name="loginFrag">loginFrag</string>
+    <string name="mapClickDialog">mapClickDialog</string>
+    <string name="registerFrag">registerFrag</string>
+    <string name="mapsFrag">mapsFrag</string>
+    <string name="setAddressFrag">setAddressFrag</string>
+    <string name="toastRatingAdded">Rating added!</string>
+    <string name="toastFailedToAddRating">Failed to add rating, please try again</string>
+    <string name="toastFailedToAddResidence">Failed to add residence, please try again</string>
+    <string name="toastFailedToDetermine">Failed to determine if residence exists, please try again</string>
+    <string name="currentRating">Current Rating:</string>
+    <string name="toastFailedToGetRatingBar">Failed to get ratingbar value</string>
+    <string name="toastFailedToGetFeedback">Failed to get feedback list</string>
+    <string name="titleAddViewRating">Add / View ratings below:</string>
+    <string name="toastFailedUpdateRatingsMap">Failed to update ratings map</string>
+    <string name="mustUseMapsInterface">must use maps interface</string>
+    <string name="mapMarkerHome">Home</string>
+    <string name="titleRegisterBelow">Register below:</string>
+    <string name="mustUseRegisterInterface">must use register interface</string>
+    <string name="resgisterPleaseEnterValidEmail">Please enter a valid email address</string>
+    <string name="registerPleaseEnterPassword6More">Please enter a password with 6 or more characters</string>
+    <string name="successfullyRegistered">Successfully registered</string>
+    <string name="alreadyRegistered">Already registered, go to login page</string>
+    <string name="unableToRegister">Unable to register</string>
+    <string name="titleSetHomeAddress">Set your home address:</string>
+    <string name="mustUseSetAddressInterface">must use SetAddress interface</string>
+    <string name="toastErrorOccured">An error occurred, please try again</string>
+    <string name="toastFailedPleaseTryAgain">Failed, please try again</string>
+    <string name="toastYouMustSelectHome">You must select a home address</string>
 </resources>
